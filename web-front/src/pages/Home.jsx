@@ -1,9 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useAuth } from '../contexts/AuthContext';
 import perfisData from '../data/perfis.json'; 
 import ProfileCard from '../components/ProfileCard';
 import ProfileModal from '../components/ProfileModal';
 import SearchBar from '../components/SearchBar';
+import { useAuth } from '../contexts/AuthContexts';
 
 export default function Home() {
   const { logout } = useAuth();
