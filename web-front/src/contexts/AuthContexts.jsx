@@ -15,7 +15,12 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (username, password) => {
-    const response = await fetch('/api/login', {
+  
+    const API_LOGIN_URL = import.meta.env.DEV
+      ? 'http://localhost:3001/login'  
+      : '/api/login';                   
+
+    const response = await fetch(API_LOGIN_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }),
