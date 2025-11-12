@@ -1,11 +1,106 @@
-export default function ProfileModal({ perfil, onClose, onRecomendar, onMensagem }) {
+import { useState } from 'react';
+import { useLocalStorage } from '../hooks/useLocalStorage';
+
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+
+import { toast } from "sonner";
+
+function RecommendationForm({ onSave }) {
+  const [text, setText] = useState('');
+
+  const handleSubmit = () => {
+    if (text.trim().length < 10) {
+      toast.error("Sua recomendação precisa ter pelo menos 10 caracteres.");
+      return;
+    }
+    
+    onSave({ text, author: "Admin (Usuário Logado)" });
+    setText('');
+    
+    toast.success("Sua recomendação foi salva.");
+  };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4">
+    <div className="grid gap-4 py-4">
+      <Label htmlFor="recommendation-text">Escreva sua recomendação:</Label>
+      <Textarea
+        id="recommendation-text"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="Descreva por que você recomenda este profissional..."
+        rows={5}
+      />
+      <DialogFooter>
+        <DialogClose asChild>
+          <Button type="button" onClick={handleSubmit}>Salvar Recomendação</Button>
+        </DialogClose>
+      </DialogFooter>
+    </div>
+  );
+}
+
+function MessageForm({ profileName, onSend }) {
+  const [text, setText] = useState('');
+
+  const handleSubmit = () => {
+     if (text.trim().length === 0) {
+      toast.error("Escreva uma mensagem.");
+      return;
+    }
+    onSend({ to: profileName, text, from: "Admin", date: new Date().toISOString() });
+    setText('');
+    toast.success(`Mensagem para ${profileName} foi salva no seu Inbox.`);
+  };
+
+  return (
+    <div className="grid gap-4 py-4">
+      <Label htmlFor="message-text">Sua mensagem para {profileName}:</Label>
+      <Textarea
+        id="message-text"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        placeholder="Escreva sua mensagem..."
+        rows={5}
+      />
+      <DialogFooter>
+        <DialogClose asChild>
+          <Button type="button" onClick={handleSubmit}>Enviar Mensagem</Button>
+        </DialogClose>
+      </DialogFooter>
+    </div>
+  );
+}
+
+
+export default function ProfileModal({ perfil, onClose, onSendMessage }) {
+  
+  const [recommendations, setRecommendations] = useLocalStorage(
+    `recs-${perfil.id}`, 
+    []
+  );
+
+  const handleSaveRecommendation = (newRec) => {
+    setRecommendations([...recommendations, newRec]);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4 z-50">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center p-4 border-b">
           <h2 className="text-xl font-bold">{perfil.nome}</h2>
-          <button onClick={onClose} className="text-gray-500 text-2xl">&times;</button>
+          <Button variant="ghost" size="icon" onClick={onClose} className="text-gray-500 text-2xl">&times;</Button>
         </div>
 
         <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -18,13 +113,6 @@ export default function ProfileModal({ perfil, onClose, onRecomendar, onMensagem
 
           <div className="md:col-span-2 space-y-4">
             <div>
-              <h4 className="font-bold">Formação</h4>
-              {perfil.formacao.map((f, i) => (
-                <p key={i} className="text-sm">{f.curso} - {f.instituicao} ({f.ano})</p>
-              ))}
-            </div>
-
-            <div>
               <h4 className="font-bold">Habilidades Técnicas</h4>
               <div className="flex flex-wrap gap-2 mt-1">
                 {perfil.habilidadesTecnicas.map(skill => (
@@ -34,7 +122,6 @@ export default function ProfileModal({ perfil, onClose, onRecomendar, onMensagem
                 ))}
               </div>
             </div>
-
             <div>
               <h4 className="font-bold">Soft Skills</h4>
               <div className="flex flex-wrap gap-2 mt-1">
@@ -45,7 +132,6 @@ export default function ProfileModal({ perfil, onClose, onRecomendar, onMensagem
                 ))}
               </div>
             </div>
-
             <div>
               <h4 className="font-bold">Experiências</h4>
               {perfil.experiencias.map((exp, i) => (
@@ -56,23 +142,60 @@ export default function ProfileModal({ perfil, onClose, onRecomendar, onMensagem
                 </div>
               ))}
             </div>
-
+            <div>
+              <h4 className="font-bold">Recomendações ({recommendations.length})</h4>
+              <div className="mt-2 space-y-2">
+                {recommendations.length === 0 && (
+                  <p className="text-sm text-gray-500">Este profissional ainda não tem recomendações.</p>
+                )}
+                {recommendations.map((rec, index) => (
+                  <blockquote key={index} className="border-l-4 pl-4 italic">
+                    <p>"{rec.text}"</p>
+                    <footer className="text-xs not-italic">- {rec.author}</footer>
+                  </blockquote>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
         <div className="flex justify-end gap-4 p-4 border-t bg-gray-50">
-          <button 
-            onClick={() => onMensagem(perfil.nome)}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-          >
-            Enviar Mensagem
-          </button>
-          <button 
-            onClick={() => onRecomendar(perfil.nome)}
-            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-          >
-            Recomendar Profissional
-          </button>
+          
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline">Enviar Mensagem</Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Enviar Mensagem</DialogTitle>
+                <DialogDescription>
+                  Sua mensagem será salva no seu inbox.
+                </DialogDescription>
+              </DialogHeader>
+              <MessageForm 
+                profileName={perfil.nome} 
+                onSend={onSendMessage} 
+              />
+            </DialogContent>
+          </Dialog>
+
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button>Escrever Recomendação</Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Recomendar {perfil.nome}</DialogTitle>
+                <DialogDescription>
+                  A recomendação ficará visível no perfil deste profissional.
+                </DialogDescription>
+              </DialogHeader>
+              <RecommendationForm 
+                profileId={perfil.id} 
+                onSave={handleSaveRecommendation} 
+              />
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
     </div>
