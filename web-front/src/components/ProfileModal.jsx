@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { useLocalStorage } from '../hooks/useLocalStorage';
+import { useState } from 'react'
+import { useLocalStorage } from '../hooks/useLocalStorage'
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -11,26 +11,25 @@ import {
   DialogTrigger,
   DialogFooter,
   DialogClose,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+} from '@/components/ui/dialog'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 
-import { toast } from "sonner";
+import { toast } from 'sonner'
 
 function RecommendationForm({ onSave }) {
-  const [text, setText] = useState('');
+  const [text, setText] = useState('')
 
   const handleSubmit = () => {
     if (text.trim().length < 10) {
-      toast.error("Sua recomendação precisa ter pelo menos 10 caracteres.");
-      return;
+      toast.error('Sua recomendação precisa ter pelo menos 10 caracteres.')
+      return
     }
-    
-    onSave({ text, author: "Admin (Usuário Logado)" });
-    setText('');
-    
-    toast.success("Sua recomendação foi salva.");
-  };
+
+    onSave({ text, author: 'Admin (Usuário Logado)' })
+    setText('')
+    toast.success('Sua recomendação foi salva.')
+  }
 
   return (
     <div className="grid gap-4 py-4">
@@ -38,232 +37,332 @@ function RecommendationForm({ onSave }) {
       <Textarea
         id="recommendation-text"
         value={text}
-        onChange={(e) => setText(e.target.value)}
+        onChange={e => setText(e.target.value)}
         placeholder="Descreva por que você recomenda este profissional..."
         rows={5}
       />
       <DialogFooter>
         <DialogClose asChild>
-          <Button type="button" onClick={handleSubmit}>Salvar Recomendação</Button>
+          <Button type="button" onClick={handleSubmit}>
+            Salvar recomendação
+          </Button>
         </DialogClose>
       </DialogFooter>
     </div>
-  );
+  )
 }
 
 function MessageForm({ profileName, onSend }) {
-  const [text, setText] = useState('');
+  const [text, setText] = useState('')
 
   const handleSubmit = () => {
-     if (text.trim().length === 0) {
-      toast.error("Escreva uma mensagem.");
-      return;
+    if (text.trim().length === 0) {
+      toast.error('Escreva uma mensagem.')
+      return
     }
-    onSend({ to: profileName, text, from: "Admin", date: new Date().toISOString() });
-    setText('');
-    toast.success(`Mensagem para ${profileName} foi salva no seu Inbox.`);
-  };
+    onSend({ to: profileName, text, from: 'Admin', date: new Date().toISOString() })
+    setText('')
+    toast.success(`Mensagem para ${profileName} foi salva no seu Inbox.`)
+  }
 
   return (
     <div className="grid gap-4 py-4">
-      <Label htmlFor="message-text">Sua mensagem para {profileName}:</Label>
+      <Label htmlFor="message-text">Sua mensagem:</Label>
       <Textarea
         id="message-text"
         value={text}
-        onChange={(e) => setText(e.target.value)}
-        placeholder="Escreva sua mensagem..."
+        onChange={e => setText(e.target.value)}
+        placeholder={`Escreva uma mensagem para ${profileName}...`}
         rows={5}
       />
       <DialogFooter>
         <DialogClose asChild>
-          <Button type="button" onClick={handleSubmit}>Enviar Mensagem</Button>
+          <Button type="button" onClick={handleSubmit}>
+            Enviar mensagem
+          </Button>
         </DialogClose>
       </DialogFooter>
     </div>
-  );
+  )
 }
 
-
 export default function ProfileModal({ perfil, onClose, onSendMessage }) {
-  
   const [recommendations, setRecommendations] = useLocalStorage(
-    `recs-${perfil.id}`, 
+    `recs-${perfil.id}`,
     []
-  );
+  )
 
-  const handleSaveRecommendation = (newRec) => {
-    setRecommendations([...recommendations, newRec]);
-  };
+  const handleSaveRecommendation = newRec => {
+    setRecommendations([...recommendations, newRec])
+  }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4 z-50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-        
-        <div className="flex justify-between items-center p-4 border-b sticky top-0 bg-white z-10">
-          <h2 className="text-xl font-bold">{perfil.nome}</h2>
-          <Button variant="ghost" size="icon" onClick={onClose} className="text-gray-500 text-2xl">&times;</Button>
-        </div>
-
-        <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-          
-          <div className="md:col-span-1 text-center">
-            <img src={perfil.foto} alt={perfil.nome} className="w-32 h-32 rounded-full mx-auto border-4 border-gray-100" />
-            <p className="font-bold text-lg mt-2">{perfil.cargo}</p>
-            <p className="text-sm text-gray-600">{perfil.localizacao}</p>
-            <p className="text-sm text-blue-600 font-medium mt-1">{perfil.area}</p>
-            
-            <p className="text-sm mt-4 text-left italic border-l-4 pl-3">"{perfil.resumo}"</p>
+    <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/70 p-4">
+      <div className="flex w-full max-w-5xl max-h-[90vh] flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-slate-900 dark:text-slate-50">
+        {/* HEADER */}
+        <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50/80 px-6 py-4 dark:border-slate-800 dark:bg-slate-900/80">
+          <div className="flex items-center gap-3">
+            <img
+              src={perfil.foto}
+              alt={perfil.nome}
+              className="h-14 w-14 rounded-full border-2 border-blue-500/60 object-cover bg-slate-100"
+            />
+            <div>
+              <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+                {perfil.nome}
+              </h2>
+              <p className="text-sm text-slate-600 dark:text-slate-300">
+                {perfil.cargo}
+              </p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                {perfil.localizacao} •{' '}
+                <span className="text-blue-600 dark:text-blue-400">{perfil.area}</span>
+              </p>
+            </div>
           </div>
 
-          <div className="md:col-span-2 space-y-5">
-            
-            <div>
-              <h4 className="font-bold text-gray-800">Habilidades Técnicas</h4>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {perfil.habilidadesTecnicas.map(skill => (
-                  <span key={skill} className="bg-gray-200 text-gray-800 text-xs font-medium px-3 py-1 rounded-full">
-                    {skill}
-                  </span>
-                ))}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onClose}
+            className="text-slate-400 hover:text-slate-700 dark:text-slate-500 dark:hover:text-slate-200 text-xl"
+          >
+            ×
+          </Button>
+        </div>
+
+        {/* BODY */}
+        <div className="flex-1 overflow-y-auto px-6 py-5 bg-slate-50 dark:bg-slate-950">
+          <div className="grid gap-6 md:grid-cols-3">
+            {/* COLUNA ESQUERDA */}
+            <div className="space-y-5 md:col-span-1">
+              <div className="rounded-xl border border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
+                <p className="text-xs font-medium uppercase text-slate-500 dark:text-slate-400">
+                  Resumo profissional
+                </p>
+                <p className="mt-2 text-sm text-slate-700 italic dark:text-slate-200">
+                  “{perfil.resumo}”
+                </p>
               </div>
-            </div>
 
-            <div>
-              <h4 className="font-bold text-gray-800">Soft Skills</h4>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {perfil.softSkills.map(skill => (
-                  <span key={skill} className="bg-green-100 text-green-800 text-xs font-medium px-3 py-1 rounded-full">
-                    {skill}
-                  </span>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <h4 className="font-bold text-gray-800">Experiências</h4>
-              {perfil.experiencias.map((exp, i) => (
-                <div key={i} className="mt-2 pl-3 border-l-2">
-                  <p className="text-sm font-semibold">{exp.cargo} @ {exp.empresa}</p>
-                  <p className="text-xs text-gray-500 uppercase">{exp.inicio} - {exp.fim}</p>
-                  <p className="text-sm mt-1">{exp.descricao}</p>
-                </div>
-              ))}
-            </div>
-            
-            <div>
-              <h4 className="font-bold text-gray-800">Formação</h4>
-              {perfil.formacao.map((f, i) => (
-                <div key={i} className="mt-2 pl-3 border-l-2">
-                  <p className="text-sm font-semibold">{f.curso}</p>
-                  <p className="text-sm text-gray-600">{f.instituicao} (Ano: {f.ano})</p>
-                </div>
-              ))}
-            </div>
-
-            {perfil.projetos.length > 0 && (
               <div>
-                <h4 className="font-bold text-gray-800">Projetos</h4>
-                {perfil.projetos.map((proj, i) => (
-                  <div key={i} className="mt-2 pl-3 border-l-2">
-                    <a href={proj.link} target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-blue-600 hover:underline">{proj.titulo}</a>
-                    <p className="text-sm mt-1">{proj.descricao}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {perfil.certificacoes.length > 0 && (
-              <div>
-                <h4 className="font-bold text-gray-800">Certificações</h4>
-                <ul className="list-disc list-inside mt-2">
-                  {perfil.certificacoes.map((cert, i) => (
-                    <li key={i} className="text-sm">{cert}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {perfil.idiomas.length > 0 && (
-              <div>
-                <h4 className="font-bold text-gray-800">Idiomas</h4>
-                <div className="flex flex-wrap gap-4 mt-2">
-                  {perfil.idiomas.map((lang, i) => (
-                    <div key={i} className="text-sm">
-                      <span className="font-semibold">{lang.idioma}:</span> {lang.nivel}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {perfil.areaInteresses.length > 0 && (
-              <div>
-                <h4 className="font-bold text-gray-800">Áreas de Interesse</h4>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {perfil.areaInteresses.map(interesse => (
-                    <span key={interesse} className="bg-purple-100 text-purple-800 text-xs font-medium px-3 py-1 rounded-full">
-                      {interesse}
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                  Habilidades técnicas
+                </h4>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {perfil.habilidadesTecnicas.map(skill => (
+                    <span
+                      key={skill}
+                      className="rounded-full bg-slate-100 px-3 py-1 text-[11px] font-medium text-slate-800 dark:bg-slate-800 dark:text-slate-50"
+                    >
+                      {skill}
                     </span>
                   ))}
                 </div>
               </div>
-            )}
-            
-            <div>
-              <h4 className="font-bold text-gray-800">Recomendações ({recommendations.length})</h4>
-              <div className="mt-2 space-y-3">
-                {recommendations.length === 0 && (
-                  <p className="text-sm text-gray-500 italic">Este profissional ainda não tem recomendações.</p>
-                )}
-                {recommendations.map((rec, index) => (
-                  <blockquote key={index} className="border-l-4 pl-4 italic bg-gray-50 p-2 rounded">
-                    <p>"{rec.text}"</p>
-                    <footer className="text-xs not-italic font-medium">- {rec.author}</footer>
-                  </blockquote>
-                ))}
+
+              <div>
+                <h4 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                  Soft skills
+                </h4>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {perfil.softSkills.map(skill => (
+                    <span
+                      key={skill}
+                      className="rounded-full bg-emerald-50 px-3 py-1 text-[11px] font-medium text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-200"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {perfil.areaInteresses.length > 0 && (
+                <div>
+                  <h4 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                    Áreas de interesse
+                  </h4>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {perfil.areaInteresses.map(interesse => (
+                      <span
+                        key={interesse}
+                        className="rounded-full bg-purple-50 px-3 py-1 text-[11px] font-medium text-purple-700 dark:bg-purple-900/40 dark:text-purple-200"
+                      >
+                        {interesse}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* COLUNA DIREITA */}
+            <div className="space-y-5 md:col-span-2">
+              <div>
+                <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+                  Experiências
+                </h4>
+                <div className="mt-3 space-y-3">
+                  {perfil.experiencias.map((exp, i) => (
+                    <div
+                      key={i}
+                      className="rounded-lg border border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900"
+                    >
+                      <p className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+                        {exp.cargo} @ {exp.empresa}
+                      </p>
+                      <p className="text-[11px] uppercase text-slate-500 dark:text-slate-400">
+                        {exp.inicio} – {exp.fim}
+                      </p>
+                      <p className="mt-1 text-sm text-slate-700 dark:text-slate-200">
+                        {exp.descricao}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+                    Formação
+                  </h4>
+                  <div className="mt-3 space-y-3">
+                    {perfil.formacao.map((f, i) => (
+                      <div
+                        key={i}
+                        className="rounded-lg border border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900"
+                      >
+                        <p className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+                          {f.curso}
+                        </p>
+                        <p className="text-xs text-slate-600 dark:text-slate-300">
+                          {f.instituicao} • Ano {f.ano}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {perfil.projetos.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+                        Projetos
+                      </h4>
+                      <div className="mt-3 space-y-2">
+                        {perfil.projetos.map((proj, i) => (
+                          <div key={i}>
+                            <a
+                              href={proj.link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sm font-semibold text-blue-600 hover:underline dark:text-blue-400"
+                            >
+                              {proj.titulo}
+                            </a>
+                            <p className="text-xs text-slate-600 dark:text-slate-300">
+                              {proj.descricao}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {perfil.certificacoes.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+                        Certificações
+                      </h4>
+                      <ul className="mt-2 list-disc space-y-1 pl-4 text-xs text-slate-700 dark:text-slate-200">
+                        {perfil.certificacoes.map((cert, i) => (
+                          <li key={i}>{cert}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {perfil.idiomas.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+                        Idiomas
+                      </h4>
+                      <div className="mt-2 flex flex-wrap gap-3 text-xs text-slate-700 dark:text-slate-200">
+                        {perfil.idiomas.map((lang, i) => (
+                          <span key={i}>
+                            <span className="font-semibold">{lang.idioma}:</span>{' '}
+                            {lang.nivel}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+                  Recomendações ({recommendations.length})
+                </h4>
+                <div className="mt-3 space-y-3">
+                  {recommendations.length === 0 && (
+                    <p className="text-sm text-slate-500 italic dark:text-slate-400">
+                      Este profissional ainda não tem recomendações.
+                    </p>
+                  )}
+                  {recommendations.map((rec, index) => (
+                    <blockquote
+                      key={index}
+                      className="rounded-lg border-l-4 border-blue-500 bg-white px-4 py-3 text-sm text-slate-800 dark:bg-slate-900 dark:text-slate-50 dark:border-blue-400"
+                    >
+                      <p>"{rec.text}"</p>
+                      <footer className="mt-1 text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                        – {rec.author}
+                      </footer>
+                    </blockquote>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="flex justify-end gap-4 p-4 border-t bg-gray-50 sticky bottom-0 z-10">
+        {/* FOOTER */}
+        <div className="flex items-center justify-end gap-3 border-t border-slate-200 bg-slate-50/80 px-6 py-3 dark:border-slate-800 dark:bg-slate-900/80">
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="outline">Enviar Mensagem</Button>
+              <Button variant="outline">
+                Enviar mensagem
+              </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[450px]">
               <DialogHeader>
-                <DialogTitle>Enviar Mensagem</DialogTitle>
+                <DialogTitle>Enviar mensagem</DialogTitle>
                 <DialogDescription>
-                  Sua mensagem será salva no seu inbox.
+                  Sua mensagem será salva no seu inbox local.
                 </DialogDescription>
               </DialogHeader>
-              <MessageForm 
-                profileName={perfil.nome} 
-                onSend={onSendMessage} 
-              />
+              <MessageForm profileName={perfil.nome} onSend={onSendMessage} />
             </DialogContent>
           </Dialog>
 
           <Dialog>
             <DialogTrigger asChild>
-              <Button>Escrever Recomendação</Button>
+              <Button>Escrever recomendação</Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[450px]">
               <DialogHeader>
                 <DialogTitle>Recomendar {perfil.nome}</DialogTitle>
                 <DialogDescription>
                   A recomendação ficará visível no perfil deste profissional.
                 </DialogDescription>
               </DialogHeader>
-              <RecommendationForm 
-                profileId={perfil.id} 
-                onSave={handleSaveRecommendation} 
-              />
+              <RecommendationForm onSave={handleSaveRecommendation} />
             </DialogContent>
           </Dialog>
         </div>
       </div>
     </div>
-  );
+  )
 }
