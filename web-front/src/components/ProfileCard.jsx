@@ -1,21 +1,48 @@
 export default function ProfileCard({ perfil, onCardClick }) {
-  
   return (
-    <div 
-      className="bg-white shadow rounded-lg p-4 cursor-pointer hover:shadow-lg"
+    <button
+      type="button"
       onClick={() => onCardClick(perfil)}
+      className="group flex flex-col rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm transition-all hover:-translate-y-1 hover:border-blue-500/70 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:bg-slate-900 dark:border-slate-700"
     >
-      <img src={perfil.foto} alt={perfil.nome} className="w-24 h-24 rounded-full mx-auto" />
-      <h3 className="text-lg font-bold text-center mt-2">{perfil.nome}</h3>
-      <p className="text-sm text-gray-600 text-center">{perfil.cargo}</p>
-      <p className="text-xs text-gray-500 text-center mt-1">{perfil.localizacao}</p>
-      <div className="mt-2 text-center">
+      <div className="flex items-center gap-3">
+        <div className="relative">
+          <div className="h-14 w-14 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 p-[2px]">
+            <img
+              src={perfil.foto}
+              alt={perfil.nome}
+              className="h-full w-full rounded-full object-cover bg-slate-100"
+            />
+          </div>
+        </div>
+
+        <div className="flex-1">
+          <h3 className="text-sm font-semibold text-slate-900 group-hover:text-blue-600 line-clamp-1 dark:text-slate-50">
+            {perfil.nome}
+          </h3>
+          <p className="text-xs text-slate-500 line-clamp-1 dark:text-slate-400">
+            {perfil.cargo}
+          </p>
+          <p className="mt-1 text-[11px] text-slate-400 dark:text-slate-500">
+            {perfil.localizacao}
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-4 flex flex-wrap gap-2">
         {perfil.habilidadesTecnicas.slice(0, 3).map(skill => (
-          <span key={skill} className="bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded">
+          <span
+            key={skill}
+            className="rounded-full bg-blue-50 px-2.5 py-1 text-[11px] font-medium text-blue-700 dark:bg-blue-950/40 dark:text-blue-200"
+          >
             {skill}
           </span>
         ))}
       </div>
-    </div>
-  );
+
+      <p className="mt-3 text-[11px] text-slate-500 line-clamp-2 dark:text-slate-400">
+        {perfil.resumo}
+      </p>
+    </button>
+  )
 }
